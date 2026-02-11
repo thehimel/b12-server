@@ -1,8 +1,7 @@
 from datetime import datetime
 from urllib.parse import urlparse
 
-from pydantic import BaseModel, Field, field_validator
-from pydantic import EmailStr
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class ApplySubmissionBody(BaseModel):
@@ -22,7 +21,7 @@ class ApplySubmissionBody(BaseModel):
         except ValueError:
             raise ValueError("The timestamp must be valid ISO 8601")
         return v
-    
+
     @field_validator("name")
     @classmethod
     def name_must_be_string(cls, v: str) -> str:
