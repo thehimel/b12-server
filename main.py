@@ -1,14 +1,25 @@
+import logging
 import uuid
 
-from fastapi import Body, FastAPI, Request, HTTPException
+from fastapi import Body, FastAPI, Request
+
+from config.logging_config import configure_app_logging
 from middleware.body_cache import CacheRequestBodyMiddleware
 from schemas.apply import ApplySubmissionBody
 from security.signature import verify_signature
+from urls import URL_APPLY_SUBMISSION, URL_HEALTH, URL_ROOT
 
-from urls import URL_HEALTH, URL_APPLY_SUBMISSION
+configure_app_logging()
+logger = logging.getLogger(__name__)
+
 
 app = FastAPI()
 app.add_middleware(CacheRequestBodyMiddleware)
+
+
+@app.get(URL_ROOT)
+def root():
+    return {"service": "b12-server", "docs": "/docs"}
 
 
 @app.get(URL_HEALTH)
@@ -38,8 +49,10 @@ async def apply_submission(
     ),
 ):
     raw_body = await request.body()
+    logger.info("Apply submission body: %s", raw_body.decode("utf-8"))
     signature_header = request.headers.get("X-Signature-256")
     verify_signature(raw_body, signature_header)
+    logger.info("Signature verification successful")
 
     receipt = f"sub_{uuid.uuid4().hex}"
     return {"success": True, "receipt": receipt}
