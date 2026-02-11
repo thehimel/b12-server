@@ -1,6 +1,7 @@
 """
 E2E: full apply-submission flow with real app stack (middleware, signature, validation).
 """
+
 from urls import URL_APPLY_SUBMISSION, URL_HEALTH
 
 
